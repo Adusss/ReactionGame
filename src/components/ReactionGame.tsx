@@ -1,5 +1,6 @@
 import { useReactionGame } from "./useReactionGame";
 import { ReactionBox } from "./ReactionBox";
+import "./ReactionGame.css";
 import type { GameState } from "./types";
 
 const getMessage = (state: GameState, reactionTime: number | null) => {
@@ -18,12 +19,22 @@ const getMessage = (state: GameState, reactionTime: number | null) => {
 };
 
 export function ReactionGame() {
-  const { gameState, reactionTime, highscore, handleClick } = useReactionGame();
+  const { gameState, reactionTime, highscores, handleClick } = useReactionGame();
 
   return (
     <div>
       <ReactionBox gameState={gameState} message={getMessage(gameState, reactionTime)} onClick={handleClick} />
-      {highscore && <div>Highscore: {highscore} ms</div>}
+
+      {highscores.length > 0 && (
+        <div>
+          <h3>Top 10 Hightscores</h3>
+          <ol>
+            {highscores.map((score) => (
+              <li key={score.id}>{score.time}</li>
+            ))}
+          </ol>
+        </div>
+      )}
     </div>
   );
 }

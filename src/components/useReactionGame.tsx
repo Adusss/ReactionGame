@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import type { GameState } from "./types";
+import type { Score } from "./types";
 
 export function useReactionGame() {
   const [gameState, setGameState] = useState<GameState>("idle");
   const [startTime, setStartTime] = useState<number | null>(null);
   const [reactionTime, setReactionTime] = useState<number | null>(null);
-  const [highscore, setHighscore] = useState<number | null>(null);
+  const [highscores, setHighscores] = useState<Score[]>([]);
 
   const handleClick = () => {
     if (gameState === "idle") {
@@ -22,7 +23,16 @@ export function useReactionGame() {
     if (gameState === "ready" && startTime) {
       const time = Date.now() - startTime;
       setReactionTime(time);
-      setHighscore((prev) => (prev === null || time < prev ? time : prev));
+
+      const newScore: Score = {
+        id: crypto.randomUUID(),
+        time,
+      };
+
+      setHighscores((prev) => {
+        const updated = [...prev, newScore].sort((a, b) => a.time - b.time);
+        return updated.slice(0, 10);
+      });
       setGameState("result");
       return;
     }
@@ -35,7 +45,7 @@ export function useReactionGame() {
   useEffect(() => {
     if (gameState !== "waiting") return;
 
-    const delay = Math.random() * 2000 + 1000;
+    const delay = Math.random() * 1 + 100;
     const timer = setTimeout(() => {
       setStartTime(Date.now());
       setGameState("ready");
@@ -44,5 +54,5 @@ export function useReactionGame() {
     return () => clearTimeout(timer);
   }, [gameState]);
 
-  return { gameState, reactionTime, highscore, handleClick };
+  return { gameState, reactionTime, highscores, handleClick };
 }
